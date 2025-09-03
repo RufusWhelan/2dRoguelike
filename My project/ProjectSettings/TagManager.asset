@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Weapon
+  - WeaponHitBox
   layers:
   - Default
   - TransparentFX

@@ -4,6 +4,7 @@ public class playerInputScript : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [HideInInspector] public Vector2 playerMovementInput;
     [HideInInspector] public bool dashInput;
+    [HideInInspector] public bool attackInput;
     private float dashBuffer;
     private float dashBufferLength = 0.15f;
     public Vector3 mousePosition;
@@ -14,6 +15,7 @@ public class playerInputScript : MonoBehaviour
         playerMovementInput = playerMovementInput.normalized;
         if (Input.GetKeyDown(KeyCode.LeftShift)) dashPlayerInput();
         if (dashBuffer > 0 && (playerMovementInput.x != 0 || playerMovementInput.y != 0)) dashInput = true;
+        if (Input.GetKeyDown(KeyCode.Mouse0)) attackInput = true;
     }
 
     public void mousePlayerInput()
