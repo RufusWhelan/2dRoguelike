@@ -10,12 +10,12 @@ public class WeaponPositionController : MonoBehaviour
     void Update()
     {
         RotateWeapon();
-    }
+    } 
 
     void RotateWeapon()
     {
         Vector3 rotation = InputScript.mousePosition - transform.position;
         float zRot = Mathf.Atan2(rotation.y, rotation.x) * Mathf.Rad2Deg - 90;
         transform.rotation = Quaternion.Euler(0,0,zRot);
-    }
+    } 
 }

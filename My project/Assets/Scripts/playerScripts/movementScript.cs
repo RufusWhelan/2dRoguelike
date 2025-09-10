@@ -15,7 +15,7 @@ public class movementScript : MonoBehaviour
     [SerializeField] private bool isDashing;
     [SerializeField] private bool canDash;
 
-    void Start()
+    void Start() 
     {
         canDash = true;
     }

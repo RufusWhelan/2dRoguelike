@@ -1,10 +1,12 @@
 using UnityEngine;
 public class playerInputScript : MonoBehaviour
 {
+    public WeaponControllerScript weaponController;
     [SerializeField] private Camera playerCamera;
     [HideInInspector] public Vector2 playerMovementInput;
     [HideInInspector] public bool dashInput;
     [HideInInspector] public bool attackInput;
+
     private float dashBuffer;
     private float dashBufferLength = 0.15f;
     public Vector3 mousePosition;
@@ -30,6 +32,15 @@ public class playerInputScript : MonoBehaviour
     public void Update()
     {
         mousePlayerInput();
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            weaponController.AddCell(0);
+        }
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            weaponController.AddCell(1);
+        }
     }
     public void FixedUpdate()
     {

@@ -17,7 +17,7 @@ public class FlipSpriteScript : MonoBehaviour
         }
     }
     void Update()
-    {
+    { 
         flip();
     }
 }
