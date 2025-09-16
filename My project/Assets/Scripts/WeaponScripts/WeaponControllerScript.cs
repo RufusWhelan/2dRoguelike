@@ -17,19 +17,21 @@ public class WeaponControllerScript : MonoBehaviour
     }
     public void AddCell(int cellIndex)
     {
+        if (cells.Count <= 7)
+        { 
+            if (cells.Count > 1) // Checks if any attachments exist
+                {
+                    setToBody(cells[cells.Count - 1]);
+                }
 
-        if (cells.Count > 1) // Checks if any attachments exist
-        {
-            setToBody(cells[cells.Count - 1]);
+            float newY = cells.Count * bodyLength;
+            Vector3 localPos = new Vector3(0f, newY, 0f); // position of new cell relative to handle to ensure nothing freaky happens with rotations
+            GameObject newCell = Instantiate(cellPrefabs[cellIndex], handle); //spawns the new cell of cellIndex type off of the handle
+
+            newCell.transform.localPosition = localPos;
+            setToTip(newCell);
+            cells.Add(newCell); // adds the newcell to the list of cells.   
         }
-
-        float newY = cells.Count * bodyLength;
-        Vector3 localPos = new Vector3(0f, newY, 0f); // position of new cell relative to handle to ensure nothing freaky happens with rotations
-        GameObject newCell = Instantiate(cellPrefabs[cellIndex], handle); //spawns the new cell of cellIndex type off of the handle
-
-        newCell.transform.localPosition = localPos;
-        setToTip(newCell);
-        cells.Add(newCell); // adds the newcell to the list of cells.
     }
 
     private void setToTip(GameObject cell)
