@@ -423,7 +423,7 @@ Transform:
   m_GameObject: {fileID: 603893754}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.67, z: 0}
+  m_LocalPosition: {x: 0, y: 1.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -940,7 +940,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InputScript: {fileID: 978477486}
   playerBody: {fileID: 978477483}
-  playerMovementSpeed: 7.5
+  playerMovementSpeed: 7
   dashForce: 20
   dashDuration: 0.25
   dashCooldown: 0.3
@@ -1179,7 +1179,7 @@ Transform:
   m_GameObject: {fileID: 1762332820}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0003691, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 50, y: 50, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1231,7 +1231,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InputScript: {fileID: 978477486}
-  swingTime: 0.6
+  swingTime: 0.4
   attackSwing: 120
   breakSwing: 0
   isSwinging: 0
