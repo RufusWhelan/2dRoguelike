@@ -4,39 +4,48 @@ using System.Collections.Generic;
 
 public class WeaponControllerScript : MonoBehaviour
 {
-    [SerializeField] private List<GameObject> segmentPrefabs; // WeaponAttachmentTypes
-    [SerializeField] private float cellLength = 1f; // length as a body part of the blade
-    [SerializeField] private float tipLength = 1.5f; // Length as tip of blade
+    [SerializeField] private List<GameObject> cellPrefabs; // WeaponAttachmentTypes
+    [SerializeField] private float bodyLength = 1f; // length as a body part of the blade
     [SerializeField] private GameObject handleGameobject;
     [SerializeField] private Transform handle;
 
     [SerializeField] private List<GameObject> cells = new List<GameObject>(); //Current WeaponCells
- 
+
     public void Start()
     {
         cells.Add(handleGameobject);
     }
-    public void AddCell(int segmentIndex) 
+    public void AddCell(int cellIndex)
     {
 
         if (cells.Count > 1) // Checks if any attachments exist
         {
-            BoxCollider2D prevCol = cells[cells.Count - 1].GetComponent<BoxCollider2D>();
-            prevCol.size = new Vector2(prevCol.size.x, cellLength); //turns the collider from a tip to a cell
-            prevCol.offset = new Vector2(0f, 0f); // unity extends objects in both directions when they are made longer, this makes it so the object extends only upwards
+            setToBody(cells[cells.Count - 1]);
         }
 
-        float newY = cells.Count * cellLength;
-        Vector3 localPos = new Vector3(0f, newY, 0f);
-        // position of new cell relative to handle to ensure nothing freaky happens with rotations
+        float newY = cells.Count * bodyLength;
+        Vector3 localPos = new Vector3(0f, newY, 0f); // position of new cell relative to handle to ensure nothing freaky happens with rotations
+        GameObject newCell = Instantiate(cellPrefabs[cellIndex], handle); //spawns the new cell of cellIndex type off of the handle
 
-        GameObject newCell = Instantiate(segmentPrefabs[segmentIndex], handle); //spawns the new cell off of the handle
         newCell.transform.localPosition = localPos;
-
-        BoxCollider2D newCol = newCell.GetComponent<BoxCollider2D>();
-        newCol.size = new Vector2(newCol.size.x, tipLength); //sets the new cells position
-        newCol.offset = new Vector2(0f, cellLength/4);
-
+        setToTip(newCell);
         cells.Add(newCell); // adds the newcell to the list of cells.
+    }
+
+    private void setToTip(GameObject cell)
+    {
+        Transform tip = cell.transform.Find("asTip");
+        Transform body = cell.transform.Find("asBody");
+
+        tip.gameObject.SetActive(true);
+        body.gameObject.SetActive(false);
+    }
+    private void setToBody(GameObject cell)
+    {
+        Transform tip = cell.transform.Find("asTip");
+        Transform body = cell.transform.Find("asBody");
+
+        tip.gameObject.SetActive(false);
+        body.gameObject.SetActive(true);
     }
 }
