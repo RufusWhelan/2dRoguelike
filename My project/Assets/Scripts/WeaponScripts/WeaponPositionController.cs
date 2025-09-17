@@ -13,6 +13,8 @@ public class WeaponPositionController : MonoBehaviour
     [SerializeField] private float breakSwing;
     [SerializeField] private bool isSwinging;
     [SerializeField] private Transform attackPivot;
+    private Quaternion targetRotation;
+    private float rotateSpeed = 20f;
 
     // Update is called once per frame
     void Update()
@@ -22,7 +24,14 @@ public class WeaponPositionController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (InputScript.attackInput && !isSwinging) StartCoroutine(onAttackInput());
+        if (InputScript.attackInput && !isSwinging)
+        {
+            float angleDiff = Quaternion.Angle(transform.rotation, targetRotation);
+            if (angleDiff < 1)
+            {
+                StartCoroutine(onAttackInput());
+            }
+        }
     }
 
     void RotateWeapon()
@@ -32,15 +41,20 @@ public class WeaponPositionController : MonoBehaviour
 
         float distance;
         if (plane.Raycast(mouseRay, out distance))
-    {
-            Vector3 hitPoint = mouseRay.GetPoint(distance); 
+        {
+            Vector3 hitPoint = mouseRay.GetPoint(distance);
             Vector3 direction = hitPoint - transform.position;
 
             float targetZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
-            Quaternion targetRotation = Quaternion.Euler(0, 0, targetZ);
+            targetRotation = Quaternion.Euler(0, 0, targetZ);
 
-            float rotateSpeed = 10f;
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotateSpeed);
+            if (!InputScript.attackInput) rotateSpeed = 25f;
+            else rotateSpeed = 50f;
+
+            if (attackPivot.localRotation != quaternion.Euler(0, 0, 0))
+                attackPivot.localRotation = Quaternion.Lerp(attackPivot.localRotation, Quaternion.Euler(0, 0, 0), Time.deltaTime * rotateSpeed);
+
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotateSpeed/2);
     }
     }
     
@@ -48,47 +62,31 @@ public class WeaponPositionController : MonoBehaviour
     {
         InputScript.attackInput = false;
         isSwinging = true;
-        float elapsed = 0;
-        float startAngle = attackSwing / 2;
-        float endAngle = -attackSwing / 2;
+        float startAttackAngle = attackSwing / 2;
+        float endAttackAngle = -attackSwing / 2;
 
-        float startupTime = 0.05f; // tweak for anticipation
+        float counter = 0;
+        float startupAttackTime = 0.1f;
         Quaternion neutralRot = Quaternion.identity;
-        Quaternion startupRot = Quaternion.Euler(0f, 0f, startAngle);
+        Quaternion startupRot = Quaternion.Euler(0f, 0f, startAttackAngle);
 
-        while (elapsed < startupTime)
+        while (counter < startupAttackTime)
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / startupTime;
+            counter += Time.deltaTime;
+            float t = counter / startupAttackTime;
 
             attackPivot.localRotation = Quaternion.Lerp(neutralRot, startupRot, t);
 
             yield return null;
         }
 
-        elapsed = 0f;
-        while (elapsed < swingTime)
+        counter = 0f;
+        while (counter < swingTime)
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / swingTime;
+            counter += Time.deltaTime;
+            float t = counter / swingTime;
 
-            attackPivot.localRotation = Quaternion.Lerp(Quaternion.Euler(0f,0f,startAngle), Quaternion.Euler(0f,0f,endAngle), t);
-
-            yield return null;
-        }
-
-
-        elapsed = 0f;
-        float returnTime = 0.1f;
-        Quaternion startRot = attackPivot.localRotation;
-        Quaternion targetRot = Quaternion.identity;
-
-        while (elapsed < returnTime)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / returnTime;
-
-            attackPivot.localRotation = Quaternion.Lerp(startRot, targetRot, t);
+            attackPivot.localRotation = Quaternion.Lerp(Quaternion.Euler(0f,0f,startAttackAngle), Quaternion.Euler(0f,0f,endAttackAngle), t);
 
             yield return null;
         }

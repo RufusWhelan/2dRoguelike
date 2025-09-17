@@ -2,7 +2,15 @@ using UnityEngine;
 
 public class baseValues : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] private float damage;
+    [SerializeField] private float onBreakDamage;
+    [SerializeField] private float critChance;
+    [SerializeField] private float weight;
+    [SerializeField] private bool breakPoint;
+    [SerializeField] private bool tipBonus;
+    private string weaponType;
+
+
     void Start()
     {
         
