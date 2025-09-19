@@ -1,18 +1,20 @@
 using UnityEngine;
 using System.Collections;
 using Unity.Mathematics;
-using UnityEngine.Rendering;
 
 public class WeaponPositionController : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public playerInputScript InputScript;
+    [SerializeField] private Transform attackPivot;
     private Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, 0f)); //2d plane infront of the camera on 0,0,0
     [SerializeField] private float swingTime;
-    [SerializeField] private float attackSwing;
-    [SerializeField] private float breakSwing;
+    [SerializeField] private float attackSwingAngle;
+    [SerializeField] private float breakSwingAngle;
     [SerializeField] private bool isSwinging;
-    [SerializeField] private Transform attackPivot;
+
+    private bool lockedRotSet = false;
+    private Quaternion lockedRot;
     private Quaternion targetRotation;
     private float rotateSpeed = 20f;
 
@@ -24,37 +26,45 @@ public class WeaponPositionController : MonoBehaviour
 
     void FixedUpdate()
     {
+        float angleDiff = Quaternion.Angle(transform.rotation, lockedRot);
         if (InputScript.attackInput && !isSwinging)
         {
-            float angleDiff = Quaternion.Angle(transform.rotation, targetRotation);
-            if (angleDiff < 1)
+            if (!lockedRotSet)
+            {
+                lockedRotSet = true;
+                lockedRot = targetRotation; //ensures that the players attack goes off where they left clicked. if statement is necessary so that set locked rotation doesn't get overwritten.
+            }
+
+            if (angleDiff < 10)
             {
                 StartCoroutine(onAttackInput());
             }
+        }
+        if (angleDiff > 120) //temporary fix for bug where player input does not get read if you move to quickly
+        {
+            lockedRotSet = false;
         }
     }
 
     void RotateWeapon()
     {
-        if (isSwinging) return;
+        if (isSwinging) return; //if the player is attacking do not rotate
         Ray mouseRay = Camera.main.ScreenPointToRay(InputScript.mousePosition);
 
         float distance;
         if (plane.Raycast(mouseRay, out distance))
         {
             Vector3 hitPoint = mouseRay.GetPoint(distance);
-            Vector3 direction = hitPoint - transform.position;
+            Vector3 direction = hitPoint - transform.position; //finds the mouses position on the 2d plane relative to players position
 
             float targetZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
             targetRotation = Quaternion.Euler(0, 0, targetZ);
 
-            if (!InputScript.attackInput) rotateSpeed = 25f;
-            else rotateSpeed = 50f;
 
             if (attackPivot.localRotation != quaternion.Euler(0, 0, 0))
                 attackPivot.localRotation = Quaternion.Lerp(attackPivot.localRotation, Quaternion.Euler(0, 0, 0), Time.deltaTime * rotateSpeed);
 
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotateSpeed/2);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotateSpeed);
     }
     }
     
@@ -62,8 +72,9 @@ public class WeaponPositionController : MonoBehaviour
     {
         InputScript.attackInput = false;
         isSwinging = true;
-        float startAttackAngle = attackSwing / 2;
-        float endAttackAngle = -attackSwing / 2;
+
+        float startAttackAngle = attackSwingAngle / 2;
+        float endAttackAngle = -attackSwingAngle / 2;
 
         float counter = 0;
         float startupAttackTime = 0.1f;
@@ -90,6 +101,7 @@ public class WeaponPositionController : MonoBehaviour
 
             yield return null;
         }
+        lockedRotSet = false;
         isSwinging = false;
     }
 }
