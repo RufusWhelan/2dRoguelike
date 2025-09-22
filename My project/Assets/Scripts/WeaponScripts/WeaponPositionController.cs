@@ -1,22 +1,22 @@
 using UnityEngine;
 using System.Collections;
 using Unity.Mathematics;
+using UnityEngine.Rendering;
 
 public class WeaponPositionController : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public playerInputScript InputScript;
-    [SerializeField] private Transform attackPivot;
     private Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, 0f)); //2d plane infront of the camera on 0,0,0
+    [SerializeField] private float attackCooldown;
+    private bool canAttack = true;
     [SerializeField] private float swingTime;
-    [SerializeField] private float attackSwingAngle;
-    [SerializeField] private float breakSwingAngle;
+    [SerializeField] private float attackSwing;
+    [SerializeField] private float breakSwing;
     [SerializeField] private bool isSwinging;
-
-    private bool lockedRotSet = false;
-    private Quaternion lockedRot;
+    [SerializeField] private Transform attackPivot;
     private Quaternion targetRotation;
-    private float rotateSpeed = 20f;
+    private float rotateSpeed;
 
     // Update is called once per frame
     void Update()
@@ -26,40 +26,32 @@ public class WeaponPositionController : MonoBehaviour
 
     void FixedUpdate()
     {
-        float angleDiff = Quaternion.Angle(transform.rotation, lockedRot);
-        if (InputScript.attackInput && !isSwinging)
+        if (InputScript.attackInput && canAttack)
         {
-            if (!lockedRotSet)
-            {
-                lockedRotSet = true;
-                lockedRot = targetRotation; //ensures that the players attack goes off where they left clicked. if statement is necessary so that set locked rotation doesn't get overwritten.
-            }
-
-            if (angleDiff < 10)
+            float angleDiff = Quaternion.Angle(transform.rotation, targetRotation);
+            if (angleDiff < 5f)
             {
                 StartCoroutine(onAttackInput());
             }
-        }
-        if (angleDiff > 120) //temporary fix for bug where player input does not get read if you move to quickly
-        {
-            lockedRotSet = false;
         }
     }
 
     void RotateWeapon()
     {
-        if (isSwinging) return; //if the player is attacking do not rotate
+        if (isSwinging) return;
         Ray mouseRay = Camera.main.ScreenPointToRay(InputScript.mousePosition);
 
         float distance;
         if (plane.Raycast(mouseRay, out distance))
         {
             Vector3 hitPoint = mouseRay.GetPoint(distance);
-            Vector3 direction = hitPoint - transform.position; //finds the mouses position on the 2d plane relative to players position
+            Vector3 direction = hitPoint - transform.position;
 
             float targetZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
             targetRotation = Quaternion.Euler(0, 0, targetZ);
 
+            if (!InputScript.attackInput) rotateSpeed = 15f;
+            else rotateSpeed = 25f;
 
             if (attackPivot.localRotation != quaternion.Euler(0, 0, 0))
                 attackPivot.localRotation = Quaternion.Lerp(attackPivot.localRotation, Quaternion.Euler(0, 0, 0), Time.deltaTime * rotateSpeed);
@@ -67,14 +59,14 @@ public class WeaponPositionController : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotateSpeed);
     }
     }
-    
+
     IEnumerator onAttackInput()
     {
         InputScript.attackInput = false;
         isSwinging = true;
-
-        float startAttackAngle = attackSwingAngle / 2;
-        float endAttackAngle = -attackSwingAngle / 2;
+        canAttack = false;
+        float startAttackAngle = attackSwing / 2;
+        float endAttackAngle = -attackSwing / 2;
 
         float counter = 0;
         float startupAttackTime = 0.1f;
@@ -87,7 +79,6 @@ public class WeaponPositionController : MonoBehaviour
             float t = counter / startupAttackTime;
 
             attackPivot.localRotation = Quaternion.Lerp(neutralRot, startupRot, t);
-
             yield return null;
         }
 
@@ -97,11 +88,12 @@ public class WeaponPositionController : MonoBehaviour
             counter += Time.deltaTime;
             float t = counter / swingTime;
 
-            attackPivot.localRotation = Quaternion.Lerp(Quaternion.Euler(0f,0f,startAttackAngle), Quaternion.Euler(0f,0f,endAttackAngle), t);
-
+            attackPivot.localRotation = Quaternion.Lerp(Quaternion.Euler(0f, 0f, startAttackAngle), Quaternion.Euler(0f, 0f, endAttackAngle), t);
             yield return null;
+
         }
-        lockedRotSet = false;
         isSwinging = false;
+        yield return new WaitForSeconds(attackCooldown);
+        canAttack = true;
     }
 }
