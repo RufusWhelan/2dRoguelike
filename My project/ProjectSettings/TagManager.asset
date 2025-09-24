@@ -17,9 +17,9 @@ TagManager:
   - Tiles
   - Walls
   - Background
+  - Player
   - Enemy
   - weaponAttachment
-  - 
   - 
   - 
   - 
@@ -43,6 +43,24 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: background
+    uniqueID: 868611483
+    locked: 0
+  - name: walls
+    uniqueID: 3137391477
+    locked: 0
+  - name: player
+    uniqueID: 2123191261
+    locked: 0
+  - name: enemy
+    uniqueID: 3236945453
+    locked: 0
+  - name: weapon
+    uniqueID: 3108075525
+    locked: 0
+  - name: paralax elements
+    uniqueID: 1166905063
     locked: 0
   m_RenderingLayers:
   - Default
